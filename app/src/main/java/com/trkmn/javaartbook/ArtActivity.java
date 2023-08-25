@@ -11,6 +11,9 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -39,6 +42,7 @@ public class ArtActivity extends AppCompatActivity {
     //Bunları onCreate altında register etmemiz gerekiyor
 
     Bitmap selectedImage;
+    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,18 +54,41 @@ public class ArtActivity extends AppCompatActivity {
         registerLauncher();
     }
 
+
+
     public void save(View view){
         String artName = binding.nameText.getText().toString();
-        String painterName = binding.nameText.getText().toString();
+        String painterName = binding.painterText.getText().toString();
         String year = binding.yearText.getText().toString();
 
         //SQL'e kaydedebilmek için resmin boyutunu küçültüyoruz
         Bitmap smallImage = makeSmallerImage(selectedImage, 300);
 
-        //Veri tabanına koymak için 0 ve birlerden oluşan veri dizisine yani byte dizisine çeviriyoruz
+        //Veri tabanına koymak için 0 ve 1'lerden oluşan veri dizisine yani byte dizisine çeviriyoruz
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         smallImage.compress(Bitmap.CompressFormat.PNG, 50, outputStream);
         byte[] byteArray =  outputStream.toByteArray();
+
+        try {
+            database = this.openOrCreateDatabase("Arts", MODE_PRIVATE, null);
+            database.execSQL("CREATE TABLE IF NOT EXISTS arts(id INTEGER PRIMARY KEY, artname VARCHAR, paintername VARCHAR, year VARCHAR, image BLOB)");
+            String sqlString = "INSERT INTO arts(artname, paintername, year, image) VALUES(?, ?, ?, ?)";
+            //Veri tabanımızda sql çalıştırmaya çalıştırırken bağlama (binding) işlemlerini kolay yapmamızı sağlayan yapı
+            SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
+            sqLiteStatement.bindString(1,artName); //İstediği index, ?'nin indexi. (Burada indexler 1'den başlıyor)
+            sqLiteStatement.bindString(2,painterName);
+            sqLiteStatement.bindString(3,year);
+            sqLiteStatement.bindBlob(4,byteArray);
+            sqLiteStatement.execute();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(ArtActivity.this, MainActivity.class);
+        //Bundan önceki ve içinde bulunduğumuz aktivite dahil bütün çalışan aktiviteleri kapatır ve gideceğimiz aktiviteyi açar
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
 
     }
 

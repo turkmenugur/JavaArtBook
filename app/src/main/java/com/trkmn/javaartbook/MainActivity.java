@@ -1,6 +1,7 @@
 package com.trkmn.javaartbook;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     ArrayList<Art> artArrayList;
+
+    ArtAdapter artAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
         artArrayList = new ArrayList<>();
 
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        artAdapter = new ArtAdapter(artArrayList);
+        binding.recyclerView.setAdapter(artAdapter);
+
         getData();
     }
 
@@ -56,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
                 Art art = new Art(name, id);
                 artArrayList.add(art);
             }
+
+            //Yeni veri geldiğinde adapter güncellenecek
+            artAdapter.notifyDataSetChanged();
 
             cursor.close();
 

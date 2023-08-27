@@ -1,6 +1,10 @@
 package com.trkmn.javaartbook;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,9 @@ public class ArtAdapter extends RecyclerView.Adapter<ArtAdapter.ArtHolder> {
 
     ArrayList<Art> artArrayList;
 
+    SQLiteDatabase database;
+
+
     public ArtAdapter(ArrayList<Art> artArrayList){
         this.artArrayList = artArrayList;
     }
@@ -29,6 +36,8 @@ public class ArtAdapter extends RecyclerView.Adapter<ArtAdapter.ArtHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ArtHolder holder, int position) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(artArrayList.get(position).image, 0,artArrayList.get(position).image.length); //byte[] to bitmap
+        holder.binding.recyclerViewImageView.setImageBitmap(bitmap);
         holder.binding.recyclerViewTextView.setText(artArrayList.get(position).name);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -58,10 +58,13 @@ public class MainActivity extends AppCompatActivity {
             int nameIx = cursor.getColumnIndex("artname");
             int idIx = cursor.getColumnIndex("id");
 
+            int imageIx = cursor.getColumnIndex("image");
+
             while (cursor.moveToNext()){
                 String name = cursor.getString(nameIx);
                 int id = cursor.getInt(idIx);
-                Art art = new Art(name, id);
+                byte[] image = cursor.getBlob(imageIx);
+                Art art = new Art(name, id, image);
                 artArrayList.add(art);
             }
 
